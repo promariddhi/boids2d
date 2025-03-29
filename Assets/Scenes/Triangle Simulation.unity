@@ -1368,7 +1368,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62dcaa6820711c4449c6c011d8705657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxChildren: 100
+  speed: 5
+  separation_strength: 1
+  cohesion_strength: 1
+  adhesion_strength: 1.5
+  vision_radius: 3
   Prefab: {fileID: 3750483396321004709, guid: 3ba6ddfdb40bc0549aabaac60bb3672c, type: 3}
 --- !u!4 &707810877
 Transform:

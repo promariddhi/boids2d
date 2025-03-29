@@ -3,11 +3,11 @@ using UnityEngine;
 public class TriangleScript : MonoBehaviour
 {
 
-    [SerializeField] private float speed = 10.0f;
-    [SerializeField] private float separationStrength = 3.0f;
-    [SerializeField] private float cohesionStrength = 0.5f;
-    [SerializeField] private float adhesionStrength = 0.3f;
-    [SerializeField] private float visionRadius = 4.5f;
+    private float speed;
+    private float separationStrength;
+    private float cohesionStrength;
+    private float adhesionStrength;
+    private float visionRadius;
 
     private float separationRadius = 1.5f;
     private Collider2D[] trianglesInVision;
@@ -19,12 +19,20 @@ public class TriangleScript : MonoBehaviour
 
     private Rigidbody2D rb;
 
+    public void setParameters(float sp, float sep, float coh, float adh, float view)
+    {
+        speed = sp;
+        separationStrength = sep;
+        cohesionStrength = coh;
+        adhesionStrength = adh;
+        visionRadius = view;
+    }
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         CalculateScreenBounds();
     }
-
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -32,7 +40,8 @@ public class TriangleScript : MonoBehaviour
         trianglesInVision = visibleTriangles(visionRadius);
 
         Vector2 velocityVector = (
-                                 separation(separationStrength)
+                                 rb.linearVelocity
+                                + separation(separationStrength)
                                 + cohesion(cohesionStrength)
                                 + adhesion(adhesionStrength)
                                 );
@@ -48,9 +57,8 @@ public class TriangleScript : MonoBehaviour
         targetRotation = Vector2.SignedAngle(transform.up, velocityVector);
         angle = Mathf.MoveTowardsAngle(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
 
-        Vector2 pos = rb.position + (Vector2)velocityVector * speed * Time.fixedDeltaTime;
-
-        rb.MovePositionAndRotation(pos, angle);
+        rb.linearVelocity = velocityVector;
+        rb.MoveRotation(angle);
 
     }
 
@@ -65,12 +73,12 @@ public class TriangleScript : MonoBehaviour
             if (obj.gameObject != this.gameObject)
             {
                 Vector2 diff = (Vector2)(transform.position - obj.transform.position); // Vector pointing away
-                separationVector += diff;
+                separationVector += diff.normalized * (separationRadius - diff.magnitude);
                 count++;
             }
         }
         if (count > 1) separationVector /= count;
-        separationVector = separationVector * separationStrength;
+        separationVector = separationVector.normalized * separationStrength;
 
         return separationVector;
     }
@@ -88,7 +96,7 @@ public class TriangleScript : MonoBehaviour
             cohesionVector += (Vector2)(obj.transform.position);
         }
         if (trianglesInVision.Length > 0) cohesionVector /= trianglesInVision.Length;
-        cohesionVector = ((cohesionVector - (Vector2)transform.position)) * cohesionStrength; 
+        cohesionVector = ((cohesionVector - (Vector2)transform.position).normalized) * cohesionStrength;
         return cohesionVector;
     }
 
@@ -97,10 +105,11 @@ public class TriangleScript : MonoBehaviour
         Vector2 adhesionVector = Vector2.zero;
         foreach (var obj in trianglesInVision)
         {
-            adhesionVector += (Vector2)(obj.transform.up);
+            Rigidbody2D obj_rb = obj.GetComponent<Rigidbody2D>();
+            adhesionVector += (Vector2)(obj_rb.linearVelocity);
         }
         if (trianglesInVision.Length > 0) adhesionVector /= trianglesInVision.Length;
-        adhesionVector *= adhesionStrength;
+        adhesionVector = adhesionVector.normalized * adhesionStrength;
         return adhesionVector;
     }
 

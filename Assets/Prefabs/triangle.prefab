@@ -102,11 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c27b0d092e3ccf468eb4e398a780636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  separationStrength: 1
-  cohesionStrength: 1
-  adhesionStrength: 1
-  visionRadius: 4.5
+  debug_log: 0
 --- !u!50 &6786178157536998569
 Rigidbody2D:
   serializedVersion: 5
@@ -115,7 +111,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3750483396321004709}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
